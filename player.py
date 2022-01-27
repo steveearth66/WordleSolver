@@ -57,6 +57,9 @@ def main():
         code = input(msg)
         cull(newWord,code)
         current = [ x for x in wordDict.keys() if wordDict[x] ] # only checks the still viable target words
+        if len(current)==0:
+            print("no matching target")
+            exit()
         minim = float("inf") #current smallest ent
         newWord = "" #current next guess
         for w in rankDict.keys(): #testing strength as a first word
