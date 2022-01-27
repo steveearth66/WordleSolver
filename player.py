@@ -5,6 +5,7 @@ WORDS = "wordlist.txt" #word list in the directory as source, via reddit
 OPTS = "allowed.txt" #permitted guesses beyond target words
 rankDict ={} #rank value for each allowable word. later extend to midgame.
 wordDict={} #just the target words, T/F if still in contention
+HARD = False #hardmode?
 
 def colors(guess, target):
     result = ["x"]*5 # using array since strings immutable
@@ -22,7 +23,7 @@ def makelist(solsFile, allowFile):
         ans = wordfile.read().split()
         wordfile.close()
         for a in ans:
-            rankDict[a]=float("inf") #lower number is best choice for next word
+            rankDict[a]=[float("inf"),True] #lower number is best choice for next word
             if readFile == solsFile:
                 wordDict[a]=True # True = possible word, False = impossible at midgame
     return
@@ -48,6 +49,8 @@ def cull(currWord, code):
 
 def main():
     makelist(WORDS, OPTS)
+    ans = input("do you wish to play in hard mode? ")
+    HARD = ans!='' and ans[0].lower()=='y'
     code = ""
     count=0 #num of guesses used so far
     newWord = "soare" #discovered by preprocessing
@@ -62,11 +65,11 @@ def main():
             exit()
         minim = float("inf") #current smallest ent
         newWord = "" #current next guess
-        for w in rankDict.keys(): #testing strength as a first word
-            rankDict[w]=entropy(w, current)
-            if rankDict[w] < minim or (rankDict[w] == minim and w in current and newWord not in current):
+        for w in [ x for x in rankDict.keys() if rankDict[x][1] ]: #testing strength as a first word
+            rankDict[w][0]=entropy(w, current)
+            if rankDict[w][0] < minim or (rankDict[w][0] == minim and w in current and newWord not in current):
                 newWord = w
-                minim = rankDict[w]
+                minim = rankDict[w][0]
     print("we won Wordle in",count,"guesses!")
 
 if __name__ == '__main__':
